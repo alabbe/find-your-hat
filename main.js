@@ -29,6 +29,7 @@ const getFieldHeight = (field) => {
     return field.lenght;
 }
 
+
 class Field {
 
     constructor(field) {
@@ -120,10 +121,10 @@ class Field {
     }
 
     checkLocation() {
-        console.log(`user location: ${this.userLocationX} / ${this.userLocationY}`);
+        //console.log(`user location: ${this.userLocationX} / ${this.userLocationY}`);
         if (isUserInTheField(this.userLocationX, this.userLocationY, getFieldWidth(this.field), getFieldHeight(this.field))) {
             let fieldValue = this.getFieldValue(this.userLocationX, this.userLocationY);
-            console.log('current field value: ', fieldValue);
+            //console.log('current field value: ', fieldValue);
             switch (fieldValue) {
                 case hat: {
                     this.exitCode = findHat;
@@ -184,13 +185,57 @@ class Field {
         }
         this.endGame(this.exitCode);
     }
+
+    static generateField(height, width, holeProbability) {
+        let holesCounter = Math.floor((height * width * holeProbability) / 100);
+        let hatCounter = 1;
+
+        let newField = [];
+        // field initialization
+        for (let i = 0; i < height; i++) {
+            newField[i] = [];
+            for (let j = 0; j < width; j++) {
+                newField[i][j] = fieldCharacter;
+            }
+        }
+        // add starting position
+        newField[0][0] = pathCharacter;
+
+        // add holes
+        do {
+            let randomRowIndex = Math.floor(Math.random() * width);
+            let randomColumnIndex = Math.floor(Math.random() * height);
+            if (randomColumnIndex !== 0 && randomRowIndex !== 0) {
+                if (newField[randomColumnIndex][randomRowIndex] !== hole) {
+                    newField[randomColumnIndex][randomRowIndex] = hole;
+                    holesCounter--;
+                }
+            }
+        } while (holesCounter);
+
+        // add one hat
+        do {
+            let randomRowIndex = Math.floor(Math.random() * width);
+            let randomColumnIndex = Math.floor(Math.random() * height);
+            if (randomColumnIndex !== 0 && randomRowIndex !== 0) {
+                if (newField[randomColumnIndex][randomRowIndex] !== hole) {
+                    newField[randomColumnIndex][randomRowIndex] = hat;
+                    hatCounter--;
+                }
+            }
+        } while (hatCounter);
+
+        return newField;
+    }
 }
 
-const myField = new Field([
+/* const myField = new Field([
     ['*', '░', 'O'],
     ['░', 'O', '░'],
     ['░', '^', '░'],
-]);
+]); */
+
+const myField = new Field(Field.generateField(5,7,30));
 
 myField.run();
 
